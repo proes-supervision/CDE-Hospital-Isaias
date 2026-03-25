@@ -95,8 +95,8 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
 
   // --- ESTADOS DE DATOS REALES ---
-  const [documents, setDocuments] = useState([]); // Versión más reciente de cada archivo (CDE)
-  const [allLogs, setAllLogs] = useState([]); // Historial completo de acciones (Audit Trail / Database)
+  const [documents, setDocuments] = useState([]); 
+  const [allLogs, setAllLogs] = useState([]); 
   const [isLoading, setIsLoading] = useState(false);
 
   // --- MOTOR DE CONEXIÓN CON GOOGLE SHEETS ---
@@ -108,7 +108,6 @@ export default function App() {
       const result = await response.json();
       
       if (result.status === 'success' && result.data) {
-        // Mapear las filas del Sheet a un formato de objeto
         const formattedLogs = result.data.map((row, index) => ({
           id: `log-${index}-${Date.now()}`,
           date: row['Fecha y Hora (Timestamp)'] || row['Fecha'] || '',
@@ -128,15 +127,13 @@ export default function App() {
           driveUrl: row['Link del Archivo (Drive)'] || row['Link en Google Drive'] || '#'
         }));
 
-        // Invertir para tener lo más reciente primero
         const reversedLogs = formattedLogs.reverse();
         setAllLogs(reversedLogs);
 
-        // Agrupar para el CDE: Queremos solo la última versión de estado de cada archivo único
         const uniqueDocsMap = {};
         reversedLogs.forEach(log => {
           if (!uniqueDocsMap[log.isoName]) {
-            uniqueDocsMap[log.isoName] = { ...log, id: log.isoName }; // Guardamos solo el registro más reciente de ese archivo
+            uniqueDocsMap[log.isoName] = { ...log, id: log.isoName }; 
           }
         });
         setDocuments(Object.values(uniqueDocsMap));
@@ -156,7 +153,7 @@ export default function App() {
     if (!API_URL || API_URL === 'LA_URL_MAGICA_DE_TU_GOOGLE_SCRIPT_AQUI') return;
     
     const payload = {
-      actionType: 'UPDATE_STATUS', // Le dice al AppScript que NO cree un archivo nuevo
+      actionType: 'UPDATE_STATUS', 
       fecha: new Date().toLocaleString(),
       isoName: updatedDoc.isoName,
       originalName: updatedDoc.originalName,
@@ -167,16 +164,16 @@ export default function App() {
       tipo: updatedDoc.type,
       revision: updatedDoc.revision,
       version: updatedDoc.version,
-      uploadedBy: activeUser, // Quién hizo la acción
+      uploadedBy: activeUser, 
       uploadedRole: userRole,
       destinatario: updatedDoc.destinatario,
       descripcion: actionDescription,
-      driveUrl: updatedDoc.driveUrl // Mantiene el link original
+      driveUrl: updatedDoc.driveUrl 
     };
 
     try {
       await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-      await loadDataFromDatabase(); // Recargar todo para sincronizar
+      await loadDataFromDatabase(); 
     } catch (error) {
       console.error("Error actualizando estado en base de datos:", error);
     }
@@ -221,45 +218,45 @@ export default function App() {
 
   if (!userRole) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 antialiased">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full mb-8">
-          <div className="text-center mb-8">
-            <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-            <div className="flex flex-col items-center mb-2">
-              <h1 className="text-4xl font-black text-blue-700 tracking-tight mb-2">CDE</h1>
-              <h2 className="text-sm md:text-base font-bold text-slate-700 leading-tight uppercase text-center">{PROJECT_NAME}</h2>
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 antialiased selection:bg-blue-500 selection:text-white">
+        <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full mb-6">
+          <div className="text-center mb-6">
+            <Shield className="w-12 h-12 text-blue-600 mx-auto mb-3" strokeWidth={1.5} />
+            <div className="flex flex-col items-center mb-1.5">
+              <h1 className="text-3xl font-black text-blue-700 tracking-tight mb-1">CDE</h1>
+              <h2 className="text-xs font-bold text-slate-700 leading-tight uppercase text-center tracking-wide">{PROJECT_NAME}</h2>
             </div>
-            <p className="text-sm text-slate-500 font-medium mt-1">Plataforma de Gestión Documental según ISO 19650</p>
+            <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Gestión Documental ISO 19650</p>
           </div>
 
           {loginStep === 1 ? (
-            <div className="space-y-3">
-              <p className="text-sm font-bold text-slate-600 mb-4 text-center">Seleccione su área de acceso:</p>
+            <div className="space-y-2.5">
+              <p className="text-[11px] font-bold text-slate-500 mb-3 text-center uppercase tracking-wider">Seleccione su perfil de acceso</p>
               {Object.keys(ROLE_CONFIG).map(roleKey => (
-                <button key={roleKey} onClick={() => handleRoleSelect(roleKey)} className="w-full py-4 px-5 text-left border rounded-xl hover:bg-blue-50 hover:border-blue-500 hover:shadow-md transition-all flex items-center justify-between group">
-                  <span className="font-bold text-slate-700 group-hover:text-blue-700">{ROLE_CONFIG[roleKey].label}</span>
-                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-500" />
+                <button key={roleKey} onClick={() => handleRoleSelect(roleKey)} className="w-full py-3 px-4 text-left border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-400 hover:shadow-sm transition-all flex items-center justify-between group">
+                  <span className="font-bold text-slate-700 text-xs group-hover:text-blue-700">{ROLE_CONFIG[roleKey].label}</span>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
                 </button>
               ))}
             </div>
           ) : (
-            <form onSubmit={handleLoginSubmit} className="space-y-5">
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b">
-                <button type="button" onClick={() => setLoginStep(1)} className="text-sm text-blue-600 hover:underline font-semibold">&larr; Volver</button>
-                <span className="font-bold text-slate-700 flex-1 text-center">Ingreso: {ROLE_CONFIG[selectedRole].label}</span>
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+                <button type="button" onClick={() => setLoginStep(1)} className="text-[10px] uppercase font-bold text-blue-600 hover:text-blue-800 transition-colors">&larr; Volver</button>
+                <span className="font-bold text-slate-700 flex-1 text-center text-xs uppercase tracking-wide">Ingreso: {ROLE_CONFIG[selectedRole].label}</span>
               </div>
-              {loginError && <div className="p-3 bg-red-50 text-red-600 text-sm font-bold rounded-lg border border-red-200">{loginError}</div>}
+              {loginError && <div className="p-2.5 bg-red-50 text-red-600 text-[11px] font-bold rounded-lg border border-red-200 text-center">{loginError}</div>}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600 uppercase flex items-center gap-2"><User size={14}/> Seleccione su Usuario</label>
-                <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)} className="w-full p-3 border border-slate-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><User size={12}/> Usuario Asignado</label>
+                <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                   {ROLE_CONFIG[selectedRole].users.map(user => <option key={user} value={user}>{user}</option>)}
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600 uppercase flex items-center gap-2"><Lock size={14}/> Contraseña de Acceso</label>
-                <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} placeholder="Ingrese su contraseña" className="w-full p-3 border border-slate-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><Lock size={12}/> Contraseña de Seguridad</label>
+                <input type="password" value={passwordInput || ''} onChange={(e) => setPasswordInput(e.target.value)} placeholder="••••••••" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none transition-all" required />
               </div>
-              <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors mt-4 shadow-lg shadow-blue-500/30">Ingresar al Sistema</button>
+              <button type="submit" className="w-full py-2.5 bg-blue-600 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-700 transition-all mt-2 shadow-md shadow-blue-600/20">Autorizar Ingreso</button>
             </form>
           )}
         </div>
@@ -281,58 +278,58 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 flex antialiased text-slate-800 overflow-hidden relative">
+    <div className="min-h-screen bg-slate-50 flex antialiased text-slate-800 overflow-hidden relative selection:bg-blue-200">
       {isMobileMenuOpen && <div className="md:hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}></div>}
       
-      {/* SIDEBAR */}
-      <div className={`fixed inset-y-0 left-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-72 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-50 shrink-0`}>
-        <div className="p-6 border-b border-slate-800 relative">
-          <button className="md:hidden absolute top-5 right-5 text-slate-400 hover:text-white transition-colors" onClick={() => setIsMobileMenuOpen(false)}><X size={24} /></button>
-          <div className="flex items-start gap-3 text-white font-bold text-md leading-tight mb-4 pr-6">
-            <Folder className="text-blue-500 shrink-0 mt-1" /><span>CDE HOSPITAL ISAIAS</span>
+      {/* SIDEBAR COMPACTO Y ELEGANTE */}
+      <div className={`fixed inset-y-0 left-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-50 shrink-0`}>
+        <div className="p-5 border-b border-slate-800/60 relative">
+          <button className="md:hidden absolute top-4 right-4 text-slate-500 hover:text-white transition-colors" onClick={() => setIsMobileMenuOpen(false)}><X size={20} /></button>
+          <div className="flex items-center gap-2.5 text-white font-bold text-sm leading-tight mb-4 pr-4">
+            <Folder className="text-blue-500 shrink-0" size={18} /><span>CDE ISAIAS</span>
           </div>
-          <div className="bg-slate-800 p-3 rounded-xl border border-slate-700">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Usuario Activo</div>
-            <div className="flex items-center gap-2 text-white font-semibold mb-1"><User size={14} className="text-blue-400 shrink-0" /><span className="truncate">{activeUser}</span></div>
-            <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></div><span className="truncate">{ROLE_CONFIG[userRole].label}</span></div>
+          <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
+            <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Sesión Activa</div>
+            <div className="flex items-center gap-1.5 text-white font-semibold text-xs mb-0.5"><User size={12} className="text-blue-400 shrink-0" /><span className="truncate">{activeUser}</span></div>
+            <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold tracking-wide"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div><span className="truncate uppercase">{ROLE_CONFIG[userRole].label}</span></div>
           </div>
         </div>
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           <SidebarBtn active={currentView === 'dashboard'} onClick={() => handleNavigation('dashboard')} icon={<Activity />} text="Dashboard" />
-          <SidebarBtn active={currentView === 'cde'} onClick={() => handleNavigation('cde')} icon={<Folder />} text="Entorno de Datos (CDE)" />
-          <SidebarBtn active={currentView === 'upload'} onClick={() => handleNavigation('upload')} icon={<UploadCloud />} text="Subir / Generar ISO" />
-          <SidebarBtn active={currentView === 'database'} onClick={() => handleNavigation('database')} icon={<Database />} text="Base de Datos Central" />
+          <SidebarBtn active={currentView === 'cde'} onClick={() => handleNavigation('cde')} icon={<Folder />} text="Entorno de Datos" />
+          <SidebarBtn active={currentView === 'upload'} onClick={() => handleNavigation('upload')} icon={<UploadCloud />} text="Subir / Generar" />
+          <SidebarBtn active={currentView === 'database'} onClick={() => handleNavigation('database')} icon={<Database />} text="Base Maestro" />
           <SidebarBtn active={currentView === 'logs'} onClick={() => handleNavigation('logs')} icon={<Clock />} text="Audit Trail" />
         </nav>
-        <div className="p-4 border-t border-slate-800">
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 font-semibold hover:text-white hover:bg-red-500/20 rounded-xl transition-colors"><LogOut size={18} /><span>Cerrar Sesión</span></button>
+        <div className="p-3 border-t border-slate-800/60">
+          <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-3 py-2.5 text-slate-400 font-semibold text-xs hover:text-white hover:bg-red-500/10 rounded-lg transition-colors"><LogOut size={16} /><span>Cerrar Sesión</span></button>
         </div>
       </div>
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
-        <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-8 shrink-0 z-10">
-          <div className="flex items-center gap-3 md:gap-0 min-w-0">
-            <button className="md:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg shrink-0" onClick={() => setIsMobileMenuOpen(true)}><Menu size={24} /></button>
-            <h2 className="text-lg md:text-xl font-bold text-slate-800 truncate">
-              {currentView === 'dashboard' ? 'Dashboard General' : currentView === 'cde' ? 'Entorno de Datos Común' : currentView === 'upload' ? 'Carga de Documentos' : currentView === 'database' ? 'Base de Datos' : 'Trazabilidad (Logs)'}
+        <header className="bg-white border-b border-slate-200 h-14 flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <button className="md:hidden p-1.5 -ml-1.5 text-slate-500 hover:bg-slate-100 rounded-md shrink-0" onClick={() => setIsMobileMenuOpen(true)}><Menu size={20} /></button>
+            <h2 className="text-sm md:text-base font-black text-slate-800 truncate tracking-tight">
+              {currentView === 'dashboard' ? 'Métricas Generales' : currentView === 'cde' ? 'CDE / Estructura ISO' : currentView === 'upload' ? 'Carga y Enrutamiento' : currentView === 'database' ? 'Base de Datos' : 'Trazabilidad'}
             </h2>
           </div>
-          <div className="flex items-center gap-3 md:gap-6 shrink-0">
-            <button onClick={loadDataFromDatabase} disabled={isLoading} className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors">
-              <RefreshCw size={14} className={isLoading ? "animate-spin text-blue-500" : ""} /> <span className="hidden sm:inline">Actualizar DB</span>
+          <div className="flex items-center gap-4 shrink-0">
+            <button onClick={loadDataFromDatabase} disabled={isLoading} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-blue-600 transition-colors">
+              <RefreshCw size={12} className={isLoading ? "animate-spin text-blue-500" : ""} /> <span className="hidden sm:inline">Sincronizar</span>
             </button>
-            <div className="h-8 w-px bg-slate-200 hidden lg:block"></div>
-            <div className="hidden lg:flex flex-col text-right">
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Supervisión:</span>
-              <span className="text-xs font-bold text-slate-700">{SUPERVISION_COMPANY}</span>
+            <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
+            <div className="hidden md:flex flex-col text-right">
+              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Supervisión Técnica</span>
+              <span className="text-[10px] font-bold text-slate-700 uppercase">{SUPERVISION_COMPANY}</span>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-4 md:p-8 bg-slate-50/50 w-full">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-auto p-4 md:p-6 bg-slate-50/50 w-full">
+          <div className="max-w-6xl mx-auto">
             {isLoading && currentView !== 'upload' ? (
-              <div className="flex flex-col items-center justify-center h-64 text-slate-400"><RefreshCw size={40} className="animate-spin mb-4 text-blue-500" /><p className="font-bold">Sincronizando con Base de Datos...</p></div>
+              <div className="flex flex-col items-center justify-center h-48 text-slate-400"><RefreshCw size={28} className="animate-spin mb-3 text-blue-500" /><p className="text-xs font-bold tracking-wide">Sincronizando registros...</p></div>
             ) : (
               <>
                 {currentView === 'dashboard' && <DashboardView documents={visibleDocuments} role={userRole} />}
@@ -359,18 +356,17 @@ export default function App() {
 function DashboardView({ documents, role }) {
   const pendingReview = documents.filter(d => (role === 'SUPERVISION' && d.status === 'REVIEW_SUP') || (role.includes('FISCAL') && d.status === 'REVIEW_FIS')).length;
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        <StatCard title="Total Documentos" value={documents.length} icon={<FileText />} color="blue" />
-        <StatCard title="Aprobados/Publicados" value={documents.filter(d => d.status === 'APPROVED' || d.folder === 'PUBLISHED').length} icon={<CheckCircle />} color="emerald" />
-        <StatCard title="Requieren Revisión" value={pendingReview} icon={<Clock />} color="orange" highlight={pendingReview > 0} />
+    <div className="space-y-4 md:space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <StatCard title="Docs Totales" value={documents.length} icon={<FileText />} color="blue" />
+        <StatCard title="Aprobados" value={documents.filter(d => d.status === 'APPROVED' || d.folder === 'PUBLISHED').length} icon={<CheckCircle />} color="emerald" />
+        <StatCard title="Pendientes" value={pendingReview} icon={<Clock />} color="orange" highlight={pendingReview > 0} />
         <StatCard title="Rechazados" value={documents.filter(d => d.status === 'REJECTED').length} icon={<XCircle />} color="red" />
       </div>
     </div>
   );
 }
 
-// --- VISOR DEL CDE ---
 function CDEView({ documents, role, logActionToDatabase }) {
   const [modalConfig, setModalConfig] = useState(null);
   const [actionComment, setActionComment] = useState('');
@@ -388,7 +384,6 @@ function CDEView({ documents, role, logActionToDatabase }) {
 
     const { doc, actionType, payload } = modalConfig;
     const commentText = actionComment.trim() ? `Motivo: ${actionComment}` : 'Sin justificación escrita';
-
     let updatedDoc = { ...doc };
     let actionLogText = '';
 
@@ -397,168 +392,120 @@ function CDEView({ documents, role, logActionToDatabase }) {
       if (payload.targetFolder === 'SHARED') newStatus = 'REVIEW_FIS';
       if (payload.targetFolder === 'PUBLISHED') newStatus = 'APPROVED';
       if (payload.targetFolder === 'ARCHIVE') newStatus = 'ARCHIVED';
-      
-      updatedDoc.status = newStatus;
-      updatedDoc.folder = payload.targetFolder;
-      actionLogText = `Traslado Administrativo (a ${payload.targetFolder}) | ${commentText}`;
-
+      updatedDoc.status = newStatus; updatedDoc.folder = payload.targetFolder;
+      actionLogText = `Traslado Admin (a ${payload.targetFolder}) | ${commentText}`;
     } else if (actionType === 'REMITIR') {
-      updatedDoc.status = 'REVIEW_FIS';
-      updatedDoc.destinatario = payload.destinatario;
+      updatedDoc.status = 'REVIEW_FIS'; updatedDoc.destinatario = payload.destinatario;
       actionLogText = `Remitido a ${payload.destinatario} | ${commentText}`;
-      // La creación de la copia automática en PUBLISHED se registrará al refrescar la tabla si lo deseas, 
-      // o se guarda como un status update de este doc.
-
     } else {
-      if (actionType === 'APPROVE') { updatedDoc.status = 'APPROVED'; updatedDoc.folder = 'PUBLISHED'; updatedDoc.destinatario = 'General / Publicado'; actionLogText = `Aprobado Final (a PUBLISHED) | ${commentText}`; } 
-      else if (actionType === 'REJECT') { updatedDoc.status = 'REJECTED'; updatedDoc.folder = 'WIP'; updatedDoc.destinatario = doc.originador; actionLogText = `Rechazado/Observado (a WIP) | ${commentText}`; } 
-      else if (actionType === 'RETURN_SUP') { updatedDoc.status = 'REVIEW_SUP'; updatedDoc.folder = 'SHARED'; updatedDoc.destinatario = 'Supervisión'; actionLogText = `Devuelto a Supervisión | ${commentText}`; } 
-      else if (actionType === 'ARCHIVE') { updatedDoc.status = 'ARCHIVED'; updatedDoc.folder = 'ARCHIVE'; updatedDoc.destinatario = 'Archivo General'; actionLogText = `Archivado (a ARCHIVE) | ${commentText}`; }
+      if (actionType === 'APPROVE') { updatedDoc.status = 'APPROVED'; updatedDoc.folder = 'PUBLISHED'; updatedDoc.destinatario = 'General'; actionLogText = `Aprobado (a PUBLISHED) | ${commentText}`; } 
+      else if (actionType === 'REJECT') { updatedDoc.status = 'REJECTED'; updatedDoc.folder = 'WIP'; updatedDoc.destinatario = doc.originador; actionLogText = `Rechazado (a WIP) | ${commentText}`; } 
+      else if (actionType === 'RETURN_SUP') { updatedDoc.status = 'REVIEW_SUP'; updatedDoc.folder = 'SHARED'; updatedDoc.destinatario = 'Supervisión'; actionLogText = `Devuelto a Sup. | ${commentText}`; } 
+      else if (actionType === 'ARCHIVE') { updatedDoc.status = 'ARCHIVED'; updatedDoc.folder = 'ARCHIVE'; updatedDoc.destinatario = 'Archivo'; actionLogText = `Archivado | ${commentText}`; }
     }
 
-    // Llamar a la función del componente App para guardar en la base de datos
     await logActionToDatabase(updatedDoc, actionLogText);
-    
-    setIsProcessing(false);
-    setModalConfig(null);
-    setActionComment('');
+    setIsProcessing(false); setModalConfig(null); setActionComment('');
   };
 
   const CARPETAS_CDE = [
-    { id: 'WIP', name: '01-WIP (Trabajo en Progreso)', color: 'bg-slate-100 border-slate-300', text: 'text-slate-700' },
-    { id: 'SHARED', name: '02-SHARED (Compartido / Revisión)', color: 'bg-blue-50 border-blue-300', text: 'text-blue-800' },
-    { id: 'PUBLISHED', name: '03-PUBLISHED (Publicado / Aprobado)', color: 'bg-emerald-50 border-emerald-300', text: 'text-emerald-800' },
-    { id: 'ARCHIVE', name: '04-ARCHIVE (Archivado / Histórico)', color: 'bg-orange-50 border-orange-300', text: 'text-orange-800' }
+    { id: 'WIP', name: '01-WIP (En Progreso)', color: 'bg-slate-100 border-slate-200', text: 'text-slate-700' },
+    { id: 'SHARED', name: '02-SHARED (Revisión)', color: 'bg-blue-50 border-blue-200', text: 'text-blue-800' },
+    { id: 'PUBLISHED', name: '03-PUBLISHED (Aprobados)', color: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-800' },
+    { id: 'ARCHIVE', name: '04-ARCHIVE (Histórico)', color: 'bg-orange-50 border-orange-200', text: 'text-orange-800' }
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6 min-h-[500px] relative">
+    <div className="space-y-4 md:space-y-6">
       
-      {/* MODAL DE JUSTIFICACIÓN DE ACCIONES */}
       {modalConfig && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl transform transition-all">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-                <MessageSquare className="text-blue-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-slate-800 leading-tight">Justificación Requerida</h3>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trazabilidad en Base de Datos</p>
-              </div>
-            </div>
-            
+          <div className="bg-white rounded-xl p-5 md:p-6 max-w-sm w-full shadow-2xl">
+            <div className="flex items-center gap-2.5 mb-3"><MessageSquare className="text-blue-600" size={16} /><div><h3 className="text-sm font-black text-slate-800">Justificación Requerida</h3></div></div>
             <form onSubmit={executeAction}>
-              <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                <p className="text-xs text-slate-500 mb-1 font-medium">Documento afectado:</p>
-                <p className="text-sm font-mono font-bold text-slate-800 break-all">{modalConfig.doc.isoName}</p>
-              </div>
-
-              <div className="space-y-2 mb-6">
-                <label className="text-xs font-black text-slate-700 uppercase">Motivo / Comentario</label>
-                <textarea 
-                  value={actionComment}
-                  onChange={e => setActionComment(e.target.value)}
-                  placeholder="Explique el motivo del traslado o actualización de estado..."
-                  required
-                  className="w-full border border-slate-300 p-3 rounded-xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-24"
-                  autoFocus
-                />
-              </div>
-
-              <div className="flex gap-3 justify-end">
-                <button type="button" disabled={isProcessing} onClick={() => setModalConfig(null)} className="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={isProcessing} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 rounded-lg text-sm font-bold text-white hover:bg-blue-700 shadow-md transition-colors">
-                  {isProcessing ? <RefreshCw size={16} className="animate-spin" /> : 'Confirmar'}
-                </button>
-              </div>
+              <div className="mb-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg"><p className="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-0.5">Afectando a:</p><p className="text-xs font-mono font-bold text-slate-700 break-all">{modalConfig.doc.isoName}</p></div>
+              <div className="space-y-1.5 mb-4"><label className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Motivo</label><textarea value={actionComment || ''} onChange={e => setActionComment(e.target.value)} placeholder="Breve justificación..." required className="w-full border border-slate-200 p-2.5 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 outline-none resize-none h-16" autoFocus /></div>
+              <div className="flex gap-2 justify-end"><button type="button" disabled={isProcessing} onClick={() => setModalConfig(null)} className="px-3 py-1.5 rounded-md text-[10px] font-bold text-slate-500 hover:bg-slate-100 uppercase tracking-wide">Cancelar</button><button type="submit" disabled={isProcessing} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 rounded-md text-[10px] font-bold uppercase tracking-wide text-white hover:bg-blue-700 shadow-sm">{isProcessing ? <RefreshCw size={12} className="animate-spin" /> : 'Confirmar'}</button></div>
             </form>
           </div>
         </div>
       )}
 
-      <div className="mb-6 border-b border-slate-200 pb-4">
-        <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Folder className="text-blue-600"/> Directorio Estructurado</h3>
-      </div>
-      
-      <div className="space-y-6 md:space-y-8">
-        {CARPETAS_CDE.map(carpeta => {
-          const docsEnCarpeta = documents.filter(d => d.folder === carpeta.id);
-          return (
-            <div key={carpeta.id} className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-              <div className={`px-4 py-3 border-b font-bold ${carpeta.color} ${carpeta.text} flex justify-between items-center text-sm md:text-base`}>
-                <span className="flex items-center gap-2 truncate"><Folder size={18} className="shrink-0" /> <span className="truncate">{carpeta.name}</span></span>
-                <span className="bg-white/60 px-2 py-1 rounded-md text-xs border border-white/40 shrink-0">{docsEnCarpeta.length} arch.</span>
-              </div>
-              <div className="p-3 md:p-4 bg-slate-50 space-y-3 min-h-[80px]">
-                {docsEnCarpeta.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-6 text-slate-400"><Folder size={32} className="opacity-20 mb-2" /><p className="text-xs md:text-sm font-medium">Carpeta vacía</p></div>
-                ) : (
-                  docsEnCarpeta.map(doc => (
-                    <div key={doc.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border border-slate-200 rounded-xl hover:border-blue-400 hover:shadow-md transition-all bg-white gap-4">
-                      <div className="flex items-start gap-3 w-full min-w-0">
-                        <div className="p-2 md:p-3 bg-slate-50 rounded-lg shadow-sm border border-slate-200 shrink-0"><FileDigit className="w-6 h-6 md:w-8 md:h-8 text-blue-600" /></div>
-                        <div className="min-w-0 flex-1">
-                          <h4 className="font-mono font-bold text-slate-800 text-sm md:text-base truncate" title={doc.isoName}>{doc.isoName}</h4>
-                          <p className="text-[11px] md:text-xs text-slate-500 mt-1 font-medium truncate">Destinatario: <span className="font-bold text-slate-700">{doc.destinatario}</span> • Autor: {doc.uploadedBy}</p>
-                          <div className="flex flex-wrap items-center gap-2 mt-2">
-                            <span className={`px-2 py-1 rounded-md font-bold uppercase tracking-wider text-[9px] md:text-[10px] ${WORKFLOW_STATES[doc.status]?.color || 'bg-slate-100 text-slate-700'}`}>{WORKFLOW_STATES[doc.status]?.label || doc.status}</span>
-                          </div>
+      {CARPETAS_CDE.map(carpeta => {
+        const docsEnCarpeta = documents.filter(d => d.folder === carpeta.id);
+        return (
+          <div key={carpeta.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <div className={`px-4 py-2.5 border-b font-bold ${carpeta.color} ${carpeta.text} flex justify-between items-center text-xs md:text-sm`}>
+              <span className="flex items-center gap-2"><Folder size={14} /> <span>{carpeta.name}</span></span>
+              <span className="bg-white/60 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider border border-white/40">{docsEnCarpeta.length} arch.</span>
+            </div>
+            <div className="p-3 bg-slate-50/50 space-y-2">
+              {docsEnCarpeta.length === 0 ? (
+                <div className="py-4 text-center text-slate-400"><p className="text-[11px] font-medium tracking-wide">Vacío</p></div>
+              ) : (
+                docsEnCarpeta.map(doc => (
+                  <div key={doc.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-3 border border-slate-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all bg-white gap-3">
+                    <div className="flex items-start gap-2.5 w-full min-w-0">
+                      <div className="p-1.5 bg-slate-50 rounded border border-slate-100 shrink-0"><FileDigit className="w-5 h-5 text-blue-500" strokeWidth={1.5} /></div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-mono font-bold text-slate-700 text-[11px] md:text-xs truncate" title={doc.isoName}>{doc.isoName}</h4>
+                        <p className="text-[9px] text-slate-400 mt-0.5 font-medium truncate uppercase tracking-wide">De: <span className="font-bold text-slate-500">{doc.uploadedBy}</span> • Para: <span className="font-bold text-slate-500">{doc.destinatario}</span></p>
+                        <div className="mt-1.5">
+                          <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest ${WORKFLOW_STATES[doc.status]?.color || 'bg-slate-100 text-slate-600'}`}>{WORKFLOW_STATES[doc.status]?.label || doc.status}</span>
                         </div>
                       </div>
-                      
-                      <div className="flex flex-wrap gap-2 w-full md:w-auto shrink-0 mt-2 md:mt-0">
-                        <a href={doc.driveUrl} target="_blank" rel="noreferrer" className="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 flex-1 md:flex-none text-center">Ver Doc</a>
-                        
-                        {doc.folder !== 'ARCHIVE' && (role === 'FISCAL_OBRA' || role === 'FISCAL_SEG') && (
-                          <button onClick={() => requestAction(doc, 'ARCHIVE')} className="px-3 py-2 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg text-xs font-bold hover:bg-orange-100 flex-1 md:flex-none">Archivar</button>
-                        )}
-                        
-                        {role === 'SUPERVISION' && (
-                          <select value="" onChange={(e) => { requestAction(doc, 'MANUAL_MOVE', { targetFolder: e.target.value }); e.target.value = ""; }} className="px-3 py-2 bg-slate-800 text-white border border-slate-700 rounded-lg text-xs font-bold hover:bg-slate-700 cursor-pointer flex-1 md:flex-none outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="" disabled>Trasladar a...</option>
-                            {doc.folder !== 'WIP' && <option value="WIP">➡️ WIP</option>}
-                            {doc.folder !== 'SHARED' && <option value="SHARED">➡️ SHARED</option>}
-                            {doc.folder !== 'PUBLISHED' && <option value="PUBLISHED">➡️ PUBLISHED</option>}
-                            {doc.folder !== 'ARCHIVE' && <option value="ARCHIVE">➡️ ARCHIVE</option>}
-                          </select>
-                        )}
-                        
-                        {role === 'SUPERVISION' && doc.folder === 'SHARED' && (
-                          <>
-                            <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Obra' })} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md flex-1 md:flex-none">A Fiscal Obra</button>
-                            <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Seguimiento' })} className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 shadow-md flex-1 md:flex-none">A Fiscal Seg.</button>
-                          </>
-                        )}
-                        
-                        {(role === 'FISCAL_OBRA' || role === 'FISCAL_SEG') && doc.status === 'REVIEW_FIS' && (
-                          <>
-                            <button onClick={() => requestAction(doc, 'RETURN_SUP')} className="px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100 flex-1 md:flex-none">Devolver a Sup.</button>
-                            <button onClick={() => requestAction(doc, 'APPROVE')} className="px-3 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-md flex-1 md:flex-none">Aprobar Final</button>
-                          </>
-                        )}
-                      </div>
                     </div>
-                  ))
-                )}
-              </div>
+                    
+                    <div className="flex flex-wrap gap-1.5 w-full md:w-auto shrink-0 mt-1 md:mt-0">
+                      <a href={doc.driveUrl} target="_blank" rel="noreferrer" className="px-2.5 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold uppercase tracking-wide text-slate-600 hover:bg-slate-50 flex-1 md:flex-none text-center">Ver</a>
+                      
+                      {doc.folder !== 'ARCHIVE' && (role === 'FISCAL_OBRA' || role === 'FISCAL_SEG') && (
+                        <button onClick={() => requestAction(doc, 'ARCHIVE')} className="px-2.5 py-1.5 bg-orange-50 text-orange-600 border border-orange-100 rounded text-[10px] font-bold uppercase tracking-wide hover:bg-orange-100 flex-1 md:flex-none">Archivar</button>
+                      )}
+                      
+                      {role === 'SUPERVISION' && (
+                        <select value="" onChange={(e) => { requestAction(doc, 'MANUAL_MOVE', { targetFolder: e.target.value }); e.target.value = ""; }} className="px-2 py-1.5 bg-slate-800 text-white border border-slate-700 rounded text-[10px] font-bold uppercase tracking-wide hover:bg-slate-700 cursor-pointer flex-1 md:flex-none outline-none">
+                          <option value="" disabled>Mover a...</option>
+                          {doc.folder !== 'WIP' && <option value="WIP">WIP</option>}
+                          {doc.folder !== 'SHARED' && <option value="SHARED">SHARED</option>}
+                          {doc.folder !== 'PUBLISHED' && <option value="PUBLISHED">PUBLISHED</option>}
+                          {doc.folder !== 'ARCHIVE' && <option value="ARCHIVE">ARCHIVE</option>}
+                        </select>
+                      )}
+                      
+                      {role === 'SUPERVISION' && doc.folder === 'SHARED' && (
+                        <>
+                          <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Obra' })} className="px-2.5 py-1.5 bg-blue-600 text-white rounded text-[10px] font-bold uppercase tracking-wide hover:bg-blue-700 flex-1 md:flex-none">A F.Obra</button>
+                          <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Seguimiento' })} className="px-2.5 py-1.5 bg-indigo-600 text-white rounded text-[10px] font-bold uppercase tracking-wide hover:bg-indigo-700 flex-1 md:flex-none">A F.Seg</button>
+                        </>
+                      )}
+                      
+                      {(role === 'FISCAL_OBRA' || role === 'FISCAL_SEG') && doc.status === 'REVIEW_FIS' && (
+                        <>
+                          <button onClick={() => requestAction(doc, 'RETURN_SUP')} className="px-2.5 py-1.5 bg-red-50 text-red-600 border border-red-100 rounded text-[10px] font-bold uppercase tracking-wide hover:bg-red-100 flex-1 md:flex-none">Rechazar</button>
+                          <button onClick={() => requestAction(doc, 'APPROVE')} className="px-2.5 py-1.5 bg-emerald-600 text-white rounded text-[10px] font-bold uppercase tracking-wide hover:bg-emerald-700 flex-1 md:flex-none">Aprobar</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-// --- CREADOR DE ARCHIVOS Y CONEXIÓN REAL CON GOOGLE ---
 function UploadView({ loadData, setCurrentView, activeUser, role, documentsLength }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  
+  const [uploadMode, setUploadMode] = useState('file'); 
+  const [externalLink, setExternalLink] = useState('');
+
   let destinatarioOptions = [];
   if (role === 'CONTRATISTA') destinatarioOptions = ['Supervisión'];
   else if (role === 'SUPERVISION') destinatarioOptions = ['Contratista', 'Fiscal de Obra', 'Fiscal de Seguimiento'];
@@ -584,137 +531,128 @@ function UploadView({ loadData, setCurrentView, activeUser, role, documentsLengt
     setIsCopied(true); setTimeout(() => setIsCopied(false), 2000);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!API_URL || API_URL === 'LA_URL_MAGICA_DE_TU_GOOGLE_SCRIPT_AQUI') return setFormError('Falta configurar la URL del Backend en el código (Línea 10).');
-    if (!formData.file) return setFormError('Por favor, selecciona un archivo.');
-    if (formData.file.size > 52428800) return setFormError('Límite excedido. Para usar la API gratuita de Google, el archivo no debe pesar más de 50MB.');
-    if (!formData.version) return setFormError('Ingrese la versión.');
+    if (!API_URL || API_URL === 'LA_URL_MAGICA_DE_TU_GOOGLE_SCRIPT_AQUI') return setFormError('Falta configurar API.');
+    if (uploadMode === 'file') {
+      if (!formData.file) return setFormError('Seleccione archivo.');
+      if (formData.file.size > 52428800) return setFormError('Límite: 50 MB en modo físico.');
+    } else {
+      if (!externalLink || !externalLink.includes('http')) return setFormError('Enlace inválido.');
+    }
+    if (!formData.version) return setFormError('Falta versión.');
 
-    setIsSubmitting(true);
-    setFormError('');
+    setIsSubmitting(true); setFormError('');
 
-    let ext = formData.extension === 'otro...' ? `.${formData.file.name.split('.').pop()}` : formData.extension;
+    let ext = formData.extension === 'otro...' ? (formData.file ? `.${formData.file.name.split('.').pop()}` : '') : formData.extension;
     const finalName = `${generatedName}${ext}`;
 
-    const reader = new FileReader();
-    reader.readAsDataURL(formData.file);
-    reader.onload = async () => {
-      const payload = {
-        actionType: 'UPLOAD',
-        fileBase64: reader.result, 
-        mimeType: formData.file.type, 
-        isoName: finalName, 
-        originalName: formData.file.name,
-        carpetaDestino: formData.carpetaDestino, 
-        status: formData.carpetaDestino === 'WIP' ? 'WIP' : formData.carpetaDestino === 'PUBLISHED' ? 'APPROVED' : 'REVIEW_SUP',
-        originador: formData.originador, 
-        disciplina: ISO_CODES.disciplina.find(d => d.code === formData.disciplina)?.name || formData.disciplina,
-        tipo: ISO_CODES.tipo.find(t => t.code === formData.tipo)?.name || formData.tipo, 
-        revision: formData.revision,
-        version: formData.version, 
-        fecha: formData.fecha, 
-        uploadedBy: activeUser, 
-        uploadedRole: role,
-        destinatario: formData.destinatario, 
-        descripcion: formData.descripcion
-      };
+    const basePayload = {
+      isoName: finalName, originalName: uploadMode === 'file' ? formData.file.name : 'Enlace Externo',
+      carpetaDestino: formData.carpetaDestino, status: formData.carpetaDestino === 'WIP' ? 'WIP' : formData.carpetaDestino === 'PUBLISHED' ? 'APPROVED' : 'REVIEW_SUP',
+      originador: formData.originador, disciplina: ISO_CODES.disciplina.find(d => d.code === formData.disciplina)?.name || formData.disciplina,
+      tipo: ISO_CODES.tipo.find(t => t.code === formData.tipo)?.name || formData.tipo, revision: formData.revision, version: formData.version, 
+      fecha: formData.fecha, uploadedBy: activeUser, uploadedRole: role, destinatario: formData.destinatario, descripcion: formData.descripcion
+    };
 
+    const sendPayload = async (payload) => {
       try {
         const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await response.json();
         if (result.status === 'success') {
-          setShowSuccess(true);
-          await loadData();
-          setTimeout(() => { setShowSuccess(false); setCurrentView('cde'); }, 2000);
-        } else { setFormError('Error de Base de Datos: ' + result.message); }
-      } catch (err) { setFormError('Error de red al conectar con el servidor.'); }
+          setShowSuccess(true); await loadData(); setTimeout(() => { setShowSuccess(false); setCurrentView('cde'); }, 1500);
+        } else { setFormError(result.message); }
+      } catch (err) { setFormError('Error de red.'); }
       setIsSubmitting(false);
     };
+
+    if (uploadMode === 'file') {
+      const reader = new FileReader(); reader.readAsDataURL(formData.file);
+      reader.onload = async () => { await sendPayload({ ...basePayload, actionType: 'UPLOAD', fileBase64: reader.result, mimeType: formData.file.type }); };
+    } else { await sendPayload({ ...basePayload, actionType: 'UPLOAD_LINK', driveUrl: externalLink }); }
   };
 
   return (
-    <div className="max-w-5xl mx-auto relative">
+    <div className="max-w-4xl mx-auto relative">
       {showSuccess && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 max-w-sm w-full text-center shadow-2xl"><CheckCircle className="w-12 h-12 text-emerald-600 mx-auto mb-4" /><h3 className="text-xl font-bold text-slate-800 mb-2">¡Subida Exitosa!</h3><p className="text-sm text-slate-500">El archivo se guardó físicamente y en la base de datos.</p></div>
+          <div className="bg-white rounded-xl p-6 w-full max-w-xs text-center shadow-2xl"><CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-3" /><h3 className="text-sm font-black text-slate-800">Carga Exitosa</h3></div>
         </div>
       )}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="bg-blue-600 p-4 md:p-6 text-white"><h3 className="text-lg md:text-xl font-bold flex items-center gap-2"><Settings /> Generador y Carga</h3></div>
-        <form onSubmit={handleSubmit} className="p-4 md:p-8">
-          {formError && <div className="mb-6 p-4 bg-red-50 text-red-600 text-sm font-bold rounded-xl border border-red-200 flex items-center gap-2"><XCircle size={18} /> {formError}</div>}
+        <div className="bg-blue-600 p-4 text-white"><h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2"><Settings size={16}/> Configuración ISO 19650</h3></div>
+        <form onSubmit={handleSubmit} className="p-4 md:p-6">
+          {formError && <div className="mb-4 p-3 bg-red-50 text-red-600 text-[11px] font-bold rounded-lg border border-red-200 flex items-center gap-1.5"><XCircle size={14} /> {formError}</div>}
           
-          <div className="mb-8 p-5 bg-slate-50 border-2 border-slate-200 rounded-xl text-center shadow-inner relative group">
-            <p className="text-xs text-slate-500 uppercase font-black tracking-widest mb-2">Nombre Estandarizado ISO 19650</p>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-3">
-              <p className="text-xl md:text-3xl font-mono font-bold text-blue-900 tracking-tight break-all">{generatedName}<span className="text-blue-500">{formData.extension === 'otro...' ? '[ext]' : formData.extension}</span></p>
-              <button type="button" onClick={handleCopyName} className={`p-2 rounded-lg transition-all flex items-center gap-1 ${isCopied ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600 hover:bg-blue-100'}`}>{isCopied ? <CheckCircle size={20} /> : <Copy size={20} />}<span className="text-xs font-bold">{isCopied ? 'Copiado' : 'Copiar'}</span></button>
+          <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg text-center relative">
+            <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1.5">Código Generado</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              <p className="text-base md:text-lg font-mono font-bold text-blue-900 tracking-tight">{generatedName}<span className="text-blue-400">{formData.extension === 'otro...' ? '[ext]' : formData.extension}</span></p>
+              <button type="button" onClick={handleCopyName} className={`px-2.5 py-1.5 rounded text-[9px] uppercase tracking-wider font-bold transition-all flex items-center gap-1 border ${isCopied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`}>{isCopied ? <CheckCircle size={12} /> : <Copy size={12} />}{isCopied ? 'Copiado' : 'Copiar'}</button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-             <SelectField label="Disciplina" value={formData.disciplina} onChange={e => setFormData({...formData, disciplina: e.target.value})} options={ISO_CODES.disciplina.filter(d => !d.reqRole || d.reqRole === role)} />
-             <SelectField label="Tipo Doc" value={formData.tipo} onChange={e => setFormData({...formData, tipo: e.target.value})} options={ISO_CODES.tipo} />
-             <SelectField label="Revisión" value={formData.revision} onChange={e => setFormData({...formData, revision: e.target.value})} options={ISO_CODES.revision} />
-             <div className="space-y-1.5 flex flex-col justify-center"><label className="text-[10px] md:text-[11px] font-black text-slate-500 uppercase">Versión</label><input type="text" value={formData.version} onChange={e => setFormData({...formData, version: e.target.value.toUpperCase()})} maxLength="3" className="w-full border border-slate-300 p-2 md:p-2.5 rounded-lg text-sm font-mono font-bold" /></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+             <SelectField label="Disciplina" value={formData.disciplina || ''} onChange={e => setFormData({...formData, disciplina: e.target.value})} options={ISO_CODES.disciplina.filter(d => !d.reqRole || d.reqRole === role)} />
+             <SelectField label="Tipo Doc" value={formData.tipo || ''} onChange={e => setFormData({...formData, tipo: e.target.value})} options={ISO_CODES.tipo} />
+             <SelectField label="Revisión" value={formData.revision || ''} onChange={e => setFormData({...formData, revision: e.target.value})} options={ISO_CODES.revision} />
+             <div className="space-y-1"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Versión</label><input type="text" value={formData.version || ''} onChange={e => setFormData({...formData, version: e.target.value.toUpperCase()})} maxLength="3" className="w-full border border-slate-200 p-2 rounded text-xs font-mono font-bold uppercase outline-none focus:border-blue-400" /></div>
           </div>
 
-          <div className="bg-slate-100 p-4 md:p-6 rounded-xl border border-slate-200 mb-6 shadow-inner">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <SelectField label="Carpeta Destino" value={formData.carpetaDestino} onChange={e => setFormData({...formData, carpetaDestino: e.target.value})} options={ISO_CODES.carpetas} />
-              <div className="space-y-1.5 flex flex-col justify-center"><label className="text-[10px] md:text-[11px] font-black text-blue-600 uppercase">Entregar A</label><select value={formData.destinatario} onChange={e => setFormData({...formData, destinatario: e.target.value})} className="w-full border-2 border-blue-200 bg-blue-50 p-2 md:p-2.5 rounded-lg text-sm font-bold text-blue-800">{destinatarioOptions.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+          <div className="bg-slate-50/50 p-4 rounded-lg border border-slate-200 mb-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SelectField label="Carpeta Destino" value={formData.carpetaDestino || ''} onChange={e => setFormData({...formData, carpetaDestino: e.target.value})} options={ISO_CODES.carpetas} />
+              <div className="space-y-1"><label className="text-[9px] font-black text-blue-600 uppercase tracking-wider">Entregar A</label><select value={formData.destinatario || ''} onChange={e => setFormData({...formData, destinatario: e.target.value})} className="w-full border border-blue-200 bg-blue-50/50 p-2 rounded text-xs font-bold text-blue-800 outline-none">{destinatarioOptions.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
             </div>
-            <div className="mt-4 space-y-1.5"><label className="text-[10px] font-black text-slate-500 uppercase">Motivo / Descripción</label><textarea value={formData.descripcion} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full border border-slate-300 p-3 rounded-lg text-sm h-16 resize-none" /></div>
+            <div className="mt-3 space-y-1"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Comentarios</label><textarea value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full border border-slate-200 p-2 rounded text-xs font-medium h-12 resize-none outline-none focus:border-blue-400" /></div>
           </div>
 
-          <div className="border-2 border-dashed border-blue-300 bg-blue-50/50 rounded-xl p-6 md:p-8 text-center relative cursor-pointer hover:bg-blue-50 transition-colors">
-            <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => {
-                const file = e.target.files[0];
-                if (file) {
-                  const ext = `.${file.name.split('.').pop().toLowerCase()}`;
-                  const matchedExt = ISO_CODES.extensiones.includes(ext) ? ext : 'otro...';
-                  setFormData({...formData, file: file, extension: matchedExt});
-                }
-              }} />
-            <UploadCloud className="w-10 h-10 text-blue-400 mx-auto mb-2" />
-            <p className="font-bold text-slate-700 text-sm md:text-base">{formData.file ? formData.file.name : 'Toca aquí para adjuntar archivo (Máx. 50MB)'}</p>
+          <div className="flex bg-slate-100 p-1 rounded-lg mb-3 w-max mx-auto border border-slate-200">
+            <button type="button" onClick={() => setUploadMode('file')} className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${uploadMode === 'file' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Físico (&lt;50MB)</button>
+            <button type="button" onClick={() => setUploadMode('link')} className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${uploadMode === 'link' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Link (&gt;50MB)</button>
           </div>
 
-          <div className="mt-6 flex justify-end"><button type="submit" disabled={isSubmitting} className="w-full md:w-auto px-6 py-3 bg-blue-600 rounded-lg font-bold text-white flex justify-center items-center shadow-lg hover:bg-blue-700 transition-colors">{isSubmitting ? <RefreshCw className="animate-spin" /> : 'Subir y Guardar'}</button></div>
+          {uploadMode === 'file' ? (
+            <div key="upload-file" className="border border-dashed border-blue-300 bg-blue-50/30 rounded-lg p-5 text-center relative cursor-pointer hover:bg-blue-50/80 transition-colors">
+              <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => { const file = e.target.files[0]; if(file){ const ext = `.${file.name.split('.').pop().toLowerCase()}`; setFormData({...formData, file: file, extension: ISO_CODES.extensiones.includes(ext)?ext:'otro...'}); } }} />
+              <UploadCloud className="w-6 h-6 text-blue-400 mx-auto mb-1.5" />
+              <p className="font-bold text-slate-600 text-xs">{formData.file ? formData.file.name : 'Adjuntar archivo'}</p>
+            </div>
+          ) : (
+            <div key="upload-link" className="border border-blue-200 bg-slate-50/50 rounded-lg p-4 text-center">
+              <input type="url" value={externalLink || ''} onChange={e => setExternalLink(e.target.value)} placeholder="https://drive.google.com/..." className="w-full border border-slate-200 p-2.5 rounded text-xs font-medium focus:border-blue-400 outline-none text-center" required={uploadMode === 'link'} />
+            </div>
+          )}
+
+          <div className="mt-5 flex justify-end"><button type="submit" disabled={isSubmitting} className="w-full md:w-auto px-5 py-2 bg-blue-600 rounded text-[10px] font-bold uppercase tracking-widest text-white flex justify-center items-center hover:bg-blue-700 transition-colors shadow-sm">{isSubmitting ? <RefreshCw size={14} className="animate-spin" /> : 'Procesar'}</button></div>
         </form>
       </div>
     </div>
   );
 }
 
-// --- VISOR DE LA BASE DE DATOS MAESTRA ---
 function DatabaseView({ logs }) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-      <div className="bg-emerald-600 p-4 md:p-5 text-white flex items-center gap-3">
-        <Database size={24} /><div><h3 className="font-bold text-lg md:text-xl">Registro Maestro</h3><p className="text-emerald-100 text-xs md:text-sm font-medium">Directorio Único Consolidado</p></div>
+      <div className="bg-slate-800 p-3 md:p-4 text-white flex items-center gap-2.5">
+        <Database size={16} className="text-emerald-400" /><div><h3 className="font-bold text-sm uppercase tracking-wide">Base Maestra</h3></div>
       </div>
       <div className="overflow-x-auto w-full">
-        <table className="w-full text-xs md:text-sm text-left whitespace-nowrap">
-          <thead className="bg-slate-100 border-b border-slate-300 uppercase font-black text-slate-600">
-            <tr><th className="px-4 py-3">Fecha</th><th className="px-4 py-3">Nombre ISO</th><th className="px-4 py-3">Autor</th><th className="px-4 py-3">Destino</th><th className="px-4 py-3">Carpeta</th><th className="px-4 py-3">Estado</th></tr>
+        <table className="w-full text-[9px] md:text-[10px] text-left whitespace-nowrap">
+          <thead className="bg-slate-50 border-b border-slate-200 uppercase font-black text-slate-500 tracking-wider">
+            <tr><th className="px-3 py-2.5">Fecha</th><th className="px-3 py-2.5">Código ISO</th><th className="px-3 py-2.5">Autoría</th><th className="px-3 py-2.5">Destino</th><th className="px-3 py-2.5">Dir</th><th className="px-3 py-2.5">Estado</th></tr>
           </thead>
           <tbody>
-            {logs.length === 0 ? (
-              <tr><td colSpan="6" className="text-center py-8 text-slate-500">No hay registros en la base de datos central.</td></tr>
-            ) : (
-              logs.map((doc) => (
-                <tr key={doc.id} className="border-b border-slate-200 hover:bg-slate-50">
-                  <td className="px-4 py-3">{doc.date}</td>
-                  <td className="px-4 py-3 font-mono font-bold text-blue-700"><a href={doc.driveUrl} target="_blank" rel="noreferrer" className="hover:underline">{doc.isoName}</a></td>
-                  <td className="px-4 py-3"><span className="block">{doc.uploadedBy}</span><span className="text-[10px] text-slate-400 font-bold uppercase">{doc.uploadedRole}</span></td>
-                  <td className="px-4 py-3 font-bold text-emerald-700">{doc.destinatario}</td>
-                  <td className="px-4 py-3"><span className="bg-slate-200 px-2 py-1 rounded text-[10px] font-black">{doc.folder}</span></td>
-                  <td className="px-4 py-3"><span className={`px-2 py-1 rounded-md font-bold uppercase text-[9px] ${WORKFLOW_STATES[doc.status]?.color || 'bg-slate-100'}`}>{WORKFLOW_STATES[doc.status]?.label || doc.status}</span></td>
-                </tr>
-              ))
-            )}
+            {logs.length === 0 ? <tr><td colSpan="6" className="text-center py-6 text-slate-400 text-xs">Sin registros.</td></tr> : logs.map((doc) => (
+              <tr key={doc.id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                <td className="px-3 py-2 text-slate-500 font-medium">{doc.date.split(' ')[0]}</td>
+                <td className="px-3 py-2 font-mono font-bold text-blue-600"><a href={doc.driveUrl} target="_blank" rel="noreferrer" className="hover:underline">{doc.isoName}</a></td>
+                <td className="px-3 py-2"><span className="block font-bold text-slate-700">{doc.uploadedBy}</span><span className="text-[8px] text-slate-400 font-black uppercase tracking-widest">{doc.uploadedRole}</span></td>
+                <td className="px-3 py-2 font-bold text-emerald-600">{doc.destinatario}</td>
+                <td className="px-3 py-2"><span className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-[8px] font-black text-slate-600">{doc.folder}</span></td>
+                <td className="px-3 py-2"><span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${WORKFLOW_STATES[doc.status]?.color || 'bg-slate-100'}`}>{WORKFLOW_STATES[doc.status]?.label || doc.status}</span></td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -722,26 +660,24 @@ function DatabaseView({ logs }) {
   );
 }
 
-// --- VISOR DE AUDIT TRAIL LOGS ---
 function LogsView({ logs }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
-      <div className="mb-8">
-        <h3 className="text-xl font-bold text-slate-800 flex items-center gap-3"><Clock className="text-blue-600" /> Trazabilidad (Audit Trail)</h3>
-        <p className="text-sm font-medium text-slate-500 mt-2">Registro inmutable de acciones. <br/>Cada comentario o movimiento se graba aquí automáticamente.</p>
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6">
+      <div className="mb-5 border-b border-slate-100 pb-3">
+        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wide"><Clock className="text-blue-500" size={16} /> Audit Trail</h3>
       </div>
-      <div className="relative border-l-2 border-slate-200 ml-4 space-y-8 pb-4">
+      <div className="relative border-l border-slate-200 ml-2 space-y-4 pb-2">
         {logs.map((log) => (
-          <div key={log.id} className="relative pl-8">
-            <div className="absolute -left-2 top-1.5 w-4 h-4 bg-blue-500 rounded-full ring-4 ring-white shadow-sm"></div>
-            <div className="bg-slate-50 hover:bg-slate-100 transition-colors p-5 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex flex-col md:flex-row justify-between md:items-center gap-2 mb-3">
-                <span className="font-bold text-slate-800 text-base">{log.description || 'Actualización de Documento'}</span>
-                <span className="text-xs font-bold text-slate-500 bg-white px-3 py-1.5 rounded-md border border-slate-200 shadow-sm inline-block">{log.date}</span>
+          <div key={log.id} className="relative pl-5">
+            <div className="absolute -left-[5px] top-1 w-2 h-2 bg-blue-400 rounded-full ring-2 ring-white"></div>
+            <div className="bg-slate-50/50 hover:bg-slate-50 transition-colors p-3 rounded-lg border border-slate-100">
+              <div className="flex flex-col md:flex-row justify-between md:items-center gap-1 mb-1.5">
+                <span className="font-bold text-slate-700 text-[11px] md:text-xs uppercase tracking-wide">{log.description || 'Actualización de Documento'}</span>
+                <span className="text-[9px] font-bold text-slate-400">{log.date}</span>
               </div>
-              <div className="space-y-1.5">
-                <p className="text-sm font-semibold text-slate-600">Documento: <span className="font-mono font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{log.isoName}</span></p>
-                <p className="text-sm font-semibold text-slate-600">Actor responsable: <span className="font-bold text-slate-800">{log.uploadedBy} ({log.uploadedRole})</span></p>
+              <div className="space-y-0.5">
+                <p className="text-[10px] text-slate-500">Doc: <span className="font-mono font-bold text-blue-700">{log.isoName}</span></p>
+                <p className="text-[10px] text-slate-500">Por: <span className="font-bold text-slate-700">{log.uploadedBy}</span></p>
               </div>
             </div>
           </div>
@@ -752,6 +688,6 @@ function LogsView({ logs }) {
 }
 
 // --- UTILS ---
-function SidebarBtn({ active, icon, text, onClick }) { return <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm ${active ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800'}`}>{React.cloneElement(icon, { size: 20 })}<span className="truncate">{text}</span></button>; }
-function StatCard({ title, value, icon, color }) { const colors = { blue: 'bg-blue-50 text-blue-700', emerald: 'bg-emerald-50 text-emerald-700', red: 'bg-red-50 text-red-700', orange: 'bg-orange-50 text-orange-700' }; return <div className={`p-4 md:p-6 rounded-xl border border-slate-200 ${colors[color]} flex justify-between items-center h-full`}><div><p className="text-[10px] md:text-xs font-black uppercase mb-1">{title}</p><h3 className="text-2xl md:text-4xl font-black">{value}</h3></div><div className="p-2 md:p-3 bg-white/60 rounded-xl shrink-0">{React.cloneElement(icon, { size: 24 })}</div></div>; }
-function SelectField({ label, value, onChange, options }) { return <div className="space-y-1.5 flex flex-col justify-center"><label className="text-[10px] md:text-[11px] font-black text-slate-500 uppercase">{label}</label><select value={value} onChange={onChange} className="w-full border border-slate-300 p-2 md:p-2.5 rounded-lg text-sm font-bold text-slate-700 truncate">{options.map(opt => <option key={opt.code} value={opt.code}>{opt.code} - {opt.name}</option>)}</select></div>; }
+function SidebarBtn({ active, icon, text, onClick }) { return <button onClick={onClick} className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-bold text-xs transition-all ${active ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>{React.cloneElement(icon, { size: 16 })}<span className="truncate tracking-wide">{text}</span></button>; }
+function StatCard({ title, value, icon, color }) { const colors = { blue: 'bg-blue-50/50 text-blue-700 border-blue-100', emerald: 'bg-emerald-50/50 text-emerald-700 border-emerald-100', red: 'bg-red-50/50 text-red-700 border-red-100', orange: 'bg-orange-50/50 text-orange-700 border-orange-100' }; return <div className={`p-3 md:p-4 rounded-lg border ${colors[color]} flex justify-between items-center h-full`}><div className="min-w-0"><p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest mb-0.5 text-slate-500 truncate">{title}</p><h3 className="text-xl md:text-2xl font-black">{value}</h3></div><div className="p-2 bg-white rounded-md shadow-sm shrink-0 opacity-80">{React.cloneElement(icon, { size: 18 })}</div></div>; }
+function SelectField({ label, value, onChange, options }) { return <div className="space-y-1 flex flex-col justify-center"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{label}</label><select value={value} onChange={onChange} className="w-full border border-slate-200 p-2 rounded text-xs font-semibold text-slate-700 truncate outline-none focus:border-blue-400 transition-colors">{options.map(opt => <option key={opt.code} value={opt.code}>{opt.code} - {opt.name}</option>)}</select></div>; }
