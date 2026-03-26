@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Folder, FileText, UploadCloud, Activity, CheckCircle, 
-  XCircle, Clock, Shield, Users, FileDigit, Settings, LogOut, ChevronRight, Lock, User, Copy, Database, MessageSquare, Menu, X, RefreshCw
+  XCircle, Clock, Shield, Users, FileDigit, Settings, LogOut, ChevronRight, Lock, User, Copy, Database, MessageSquare, Menu, X, RefreshCw, Download
 } from 'lucide-react';
 
 // ==========================================
@@ -14,10 +14,10 @@ const PROJECT_NAME = "CONSTRUCCION HOSPITAL DE SEGUNDO NIVEL ISAIAS";
 const SUPERVISION_COMPANY = "PROES - MARCONI SOUTO";
 
 const ROLE_CONFIG = {
-  CONTRATISTA: { label: 'Contratista', password: 'CA01', users: ['Otto Medina', 'Hugo Fernandez', 'Fernando Pinaya', 'Dennis Vallejos', 'Erlan Lopez', 'Alejandra Terrazas'] },
-  SUPERVISION: { label: 'Supervisión', password: 'SN02', users: ['Zacarias Ortega', 'Cecilia Zurita', 'Edson Copa', 'Ariel Flores', 'Rodmy Alanez', 'Jose Rios'] },
-  FISCAL_OBRA: { label: 'Fiscal de Obra', password: 'FO03', users: ['Alex Colque', 'Mauricio Cortez', 'Rolando Bustillos'] },
-  FISCAL_SEG: { label: 'Fiscal de Seguimiento', password: 'FS04', users: ['Fiscal de Seguimiento Asignado'] }
+  CONTRATISTA: { label: 'Contratista', password: 'erobo0923', users: ['Otto Medina', 'Hugo Fernandez', 'Fernando Pinaya', 'Alejandra Terrazas'] },
+  SUPERVISION: { label: 'Supervisión', password: 'proesms0324', users: ['Zacarias Ortega', 'Cecilia Zurita', 'Edson Copa', 'Ariel Flores', 'Rodmy Alanez', 'Jose Rios'] },
+  FISCAL_OBRA: { label: 'Fiscal de Obra', password: 'fdo2023', users: ['Alex Colque', 'Mauricio Cortez', 'Rolando Bustillos'] },
+  FISCAL_SEG: { label: 'Fiscal de Seguimiento', password: 'fds2025', users: ['Michelle Castelo'] }
 };
 
 const ISO_CODES = {
@@ -110,21 +110,21 @@ export default function App() {
       if (result.status === 'success' && result.data) {
         const formattedLogs = result.data.map((row, index) => ({
           id: `log-${index}-${Date.now()}`,
-          date: row['Fecha y Hora (Timestamp)'] || row['Fecha'] || '',
-          isoName: row['Nombre ISO'] || '',
-          originalName: row['Nombre Original'] || '',
-          folder: row['Carpeta Destino'] || 'WIP',
-          status: row['Estado'] || 'WIP',
-          originador: row['Originador'] || '',
-          discipline: row['Disciplina'] || '',
-          type: row['Tipo Doc'] || '',
-          revision: row['Revisión'] || '',
-          version: row['Versión'] || '',
-          uploadedBy: row['Subido Por (Usuario)'] || row['Subido Por'] || '',
-          uploadedRole: row['Rol'] || '',
-          destinatario: row['Entregado A (Destinatario)'] || row['Entregado A'] || '',
-          description: row['Descripción'] || row['Descripción / Motivo'] || '',
-          driveUrl: row['Link del Archivo (Drive)'] || row['Link en Google Drive'] || '#'
+          date: (row['Fecha y Hora (Timestamp)'] || row['Fecha'] || '').trim(),
+          isoName: (row['Nombre ISO'] || '').trim(),
+          originalName: (row['Nombre Original'] || '').trim(),
+          folder: (row['Carpeta Destino'] || 'WIP').trim(),
+          status: (row['Estado'] || 'WIP').trim(),
+          originador: (row['Originador'] || '').trim(),
+          discipline: (row['Disciplina'] || '').trim(),
+          type: (row['Tipo Doc'] || '').trim(),
+          revision: (row['Revisión'] || '').trim(),
+          version: (row['Versión'] || '').trim(),
+          uploadedBy: (row['Subido Por (Usuario)'] || row['Subido Por'] || '').trim(),
+          uploadedRole: (row['Rol'] || '').trim(),
+          destinatario: (row['Entregado A (Destinatario)'] || row['Entregado A'] || '').trim(),
+          description: (row['Descripción'] || row['Descripción / Motivo'] || '').trim(),
+          driveUrl: (row['Link del Archivo (Drive)'] || row['Link en Google Drive'] || '#').trim()
         }));
 
         const reversedLogs = formattedLogs.reverse();
@@ -230,8 +230,8 @@ export default function App() {
           </div>
 
           {loginStep === 1 ? (
-            <div className="space-y-2.5">
-              <p className="text-[11px] font-bold text-slate-500 mb-3 text-center uppercase tracking-wider">Seleccione su perfil de acceso</p>
+            <div className="space-y-2.5 text-left">
+              <p className="text-[11px] font-bold text-slate-500 mb-3 uppercase tracking-wider">Seleccione su perfil de acceso</p>
               {Object.keys(ROLE_CONFIG).map(roleKey => (
                 <button key={roleKey} onClick={() => handleRoleSelect(roleKey)} className="w-full py-3 px-4 text-left border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-400 hover:shadow-sm transition-all flex items-center justify-between group">
                   <span className="font-bold text-slate-700 text-xs group-hover:text-blue-700">{ROLE_CONFIG[roleKey].label}</span>
@@ -240,19 +240,19 @@ export default function App() {
               ))}
             </div>
           ) : (
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <form onSubmit={handleLoginSubmit} className="space-y-4 text-left">
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
                 <button type="button" onClick={() => setLoginStep(1)} className="text-[10px] uppercase font-bold text-blue-600 hover:text-blue-800 transition-colors">&larr; Volver</button>
-                <span className="font-bold text-slate-700 flex-1 text-center text-xs uppercase tracking-wide">Ingreso: {ROLE_CONFIG[selectedRole].label}</span>
+                <span className="font-bold text-slate-700 flex-1 text-right text-xs uppercase tracking-wide">Ingreso: {ROLE_CONFIG[selectedRole].label}</span>
               </div>
-              {loginError && <div className="p-2.5 bg-red-50 text-red-600 text-[11px] font-bold rounded-lg border border-red-200 text-center">{loginError}</div>}
-              <div className="space-y-1">
+              {loginError && <div className="p-2.5 bg-red-50 text-red-600 text-[11px] font-bold rounded-lg border border-red-200">{loginError}</div>}
+              <div className="space-y-1 text-left">
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><User size={12}/> Usuario Asignado</label>
                 <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                   {ROLE_CONFIG[selectedRole].users.map(user => <option key={user} value={user}>{user}</option>)}
                 </select>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 text-left">
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><Lock size={12}/> Contraseña de Seguridad</label>
                 <input type="password" value={passwordInput || ''} onChange={(e) => setPasswordInput(e.target.value)} placeholder="••••••••" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none transition-all" required />
               </div>
@@ -271,8 +271,9 @@ export default function App() {
   const visibleDocuments = documents.filter(doc => {
     if (userRole === 'SUPERVISION' || userRole === 'CONTRATISTA') return true;
     if (userRole === 'FISCAL_OBRA' || userRole === 'FISCAL_SEG') {
-      const myLabel = ROLE_CONFIG[userRole].label;
-      return doc.uploadedRole === userRole || doc.destinatario === myLabel || doc.folder === 'PUBLISHED';
+      const myLabel = ROLE_CONFIG[userRole].label.toLowerCase().trim();
+      const docDestinatario = (doc.destinatario || '').toLowerCase().trim();
+      return doc.uploadedRole === userRole || docDestinatario === myLabel || doc.folder === 'PUBLISHED';
     }
     return false;
   });
@@ -283,38 +284,38 @@ export default function App() {
       
       {/* SIDEBAR COMPACTO Y ELEGANTE */}
       <div className={`fixed inset-y-0 left-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-50 shrink-0`}>
-        <div className="p-5 border-b border-slate-800/60 relative">
+        <div className="p-5 border-b border-slate-800/60 relative text-left">
           <button className="md:hidden absolute top-4 right-4 text-slate-500 hover:text-white transition-colors" onClick={() => setIsMobileMenuOpen(false)}><X size={20} /></button>
           <div className="flex items-center gap-2.5 text-white font-bold text-sm leading-tight mb-4 pr-4">
             <Folder className="text-blue-500 shrink-0" size={18} /><span>CDE ISAIAS</span>
           </div>
-          <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
+          <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50 text-left">
             <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Sesión Activa</div>
             <div className="flex items-center gap-1.5 text-white font-semibold text-xs mb-0.5"><User size={12} className="text-blue-400 shrink-0" /><span className="truncate">{activeUser}</span></div>
             <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold tracking-wide"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div><span className="truncate uppercase">{ROLE_CONFIG[userRole].label}</span></div>
           </div>
         </div>
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto text-left">
           <SidebarBtn active={currentView === 'dashboard'} onClick={() => handleNavigation('dashboard')} icon={<Activity />} text="Dashboard" />
           <SidebarBtn active={currentView === 'cde'} onClick={() => handleNavigation('cde')} icon={<Folder />} text="Entorno de Datos" />
           <SidebarBtn active={currentView === 'upload'} onClick={() => handleNavigation('upload')} icon={<UploadCloud />} text="Subir / Generar" />
           <SidebarBtn active={currentView === 'database'} onClick={() => handleNavigation('database')} icon={<Database />} text="Base Maestro" />
           <SidebarBtn active={currentView === 'logs'} onClick={() => handleNavigation('logs')} icon={<Clock />} text="Audit Trail" />
         </nav>
-        <div className="p-3 border-t border-slate-800/60">
+        <div className="p-3 border-t border-slate-800/60 text-left">
           <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-3 py-2.5 text-slate-400 font-semibold text-xs hover:text-white hover:bg-red-500/10 rounded-lg transition-colors"><LogOut size={16} /><span>Cerrar Sesión</span></button>
         </div>
       </div>
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
-        <header className="bg-white border-b border-slate-200 h-14 flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
+        <header className="bg-white border-b border-slate-200 h-14 flex items-center justify-between px-4 md:px-6 shrink-0 z-10 text-left">
           <div className="flex items-center gap-3 min-w-0">
             <button className="md:hidden p-1.5 -ml-1.5 text-slate-500 hover:bg-slate-100 rounded-md shrink-0" onClick={() => setIsMobileMenuOpen(true)}><Menu size={20} /></button>
             <h2 className="text-sm md:text-base font-black text-slate-800 truncate tracking-tight">
               {currentView === 'dashboard' ? 'Métricas Generales' : currentView === 'cde' ? 'CDE / Estructura ISO' : currentView === 'upload' ? 'Carga y Enrutamiento' : currentView === 'database' ? 'Base de Datos' : 'Trazabilidad'}
             </h2>
           </div>
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-4 shrink-0 text-left">
             <button onClick={loadDataFromDatabase} disabled={isLoading} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-blue-600 transition-colors">
               <RefreshCw size={12} className={isLoading ? "animate-spin text-blue-500" : ""} /> <span className="hidden sm:inline">Sincronizar</span>
             </button>
@@ -326,8 +327,8 @@ export default function App() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-4 md:p-6 bg-slate-50/50 w-full">
-          <div className="max-w-6xl mx-auto">
+        <main className="flex-1 overflow-auto p-4 md:p-6 bg-slate-50/50 w-full text-left">
+          <div className="max-w-6xl mx-auto text-left">
             {isLoading && currentView !== 'upload' ? (
               <div className="flex flex-col items-center justify-center h-48 text-slate-400"><RefreshCw size={28} className="animate-spin mb-3 text-blue-500" /><p className="text-xs font-bold tracking-wide">Sincronizando registros...</p></div>
             ) : (
@@ -356,8 +357,8 @@ export default function App() {
 function DashboardView({ documents, role }) {
   const pendingReview = documents.filter(d => (role === 'SUPERVISION' && d.status === 'REVIEW_SUP') || (role.includes('FISCAL') && d.status === 'REVIEW_FIS')).length;
   return (
-    <div className="space-y-4 md:space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+    <div className="space-y-4 md:space-y-6 text-left">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-left">
         <StatCard title="Docs Totales" value={documents.length} icon={<FileText />} color="blue" />
         <StatCard title="Aprobados" value={documents.filter(d => d.status === 'APPROVED' || d.folder === 'PUBLISHED').length} icon={<CheckCircle />} color="emerald" />
         <StatCard title="Pendientes" value={pendingReview} icon={<Clock />} color="orange" highlight={pendingReview > 0} />
@@ -416,15 +417,15 @@ function CDEView({ documents, role, logActionToDatabase }) {
   ];
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-4 md:space-y-6 text-left">
       
       {modalConfig && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-5 md:p-6 max-w-sm w-full shadow-2xl">
+          <div className="bg-white rounded-xl p-5 md:p-6 max-w-sm w-full shadow-2xl text-left">
             <div className="flex items-center gap-2.5 mb-3"><MessageSquare className="text-blue-600" size={16} /><div><h3 className="text-sm font-black text-slate-800">Justificación Requerida</h3></div></div>
             <form onSubmit={executeAction}>
-              <div className="mb-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg"><p className="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-0.5">Afectando a:</p><p className="text-xs font-mono font-bold text-slate-700 break-all">{modalConfig.doc.isoName}</p></div>
-              <div className="space-y-1.5 mb-4"><label className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Motivo</label><textarea value={actionComment || ''} onChange={e => setActionComment(e.target.value)} placeholder="Breve justificación..." required className="w-full border border-slate-200 p-2.5 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 outline-none resize-none h-16" autoFocus /></div>
+              <div className="mb-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-left"><p className="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-0.5">Afectando a:</p><p className="text-xs font-mono font-bold text-slate-700 break-all">{modalConfig.doc.isoName}</p></div>
+              <div className="space-y-1.5 mb-4 text-left"><label className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Motivo</label><textarea value={actionComment || ''} onChange={e => setActionComment(e.target.value)} placeholder="Breve justificación..." required className="w-full border border-slate-200 p-2.5 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 outline-none resize-none h-16" autoFocus /></div>
               <div className="flex gap-2 justify-end"><button type="button" disabled={isProcessing} onClick={() => setModalConfig(null)} className="px-3 py-1.5 rounded-md text-[10px] font-bold text-slate-500 hover:bg-slate-100 uppercase tracking-wide">Cancelar</button><button type="submit" disabled={isProcessing} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 rounded-md text-[10px] font-bold uppercase tracking-wide text-white hover:bg-blue-700 shadow-sm">{isProcessing ? <RefreshCw size={12} className="animate-spin" /> : 'Confirmar'}</button></div>
             </form>
           </div>
@@ -434,37 +435,39 @@ function CDEView({ documents, role, logActionToDatabase }) {
       {CARPETAS_CDE.map(carpeta => {
         const docsEnCarpeta = documents.filter(d => d.folder === carpeta.id);
         return (
-          <div key={carpeta.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            <div className={`px-4 py-2.5 border-b font-bold ${carpeta.color} ${carpeta.text} flex justify-between items-center text-xs md:text-sm`}>
+          <div key={carpeta.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm text-left">
+            <div className={`px-4 py-2.5 border-b font-bold ${carpeta.color} ${carpeta.text} flex justify-between items-center text-xs md:text-sm text-left`}>
               <span className="flex items-center gap-2"><Folder size={14} /> <span>{carpeta.name}</span></span>
               <span className="bg-white/60 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider border border-white/40">{docsEnCarpeta.length} arch.</span>
             </div>
-            <div className="p-3 bg-slate-50/50 space-y-2">
+            <div className="p-3 bg-slate-50/50 space-y-2 text-left">
               {docsEnCarpeta.length === 0 ? (
                 <div className="py-4 text-center text-slate-400"><p className="text-[11px] font-medium tracking-wide">Vacío</p></div>
               ) : (
                 docsEnCarpeta.map(doc => (
-                  <div key={doc.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-3 border border-slate-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all bg-white gap-3">
-                    <div className="flex items-start gap-2.5 w-full min-w-0">
+                  <div key={doc.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-3 border border-slate-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all bg-white gap-3 text-left">
+                    <div className="flex items-start gap-2.5 w-full min-w-0 text-left">
                       <div className="p-1.5 bg-slate-50 rounded border border-slate-100 shrink-0"><FileDigit className="w-5 h-5 text-blue-500" strokeWidth={1.5} /></div>
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 text-left">
                         <h4 className="font-mono font-bold text-slate-700 text-[11px] md:text-xs truncate" title={doc.isoName}>{doc.isoName}</h4>
                         <p className="text-[9px] text-slate-400 mt-0.5 font-medium truncate uppercase tracking-wide">De: <span className="font-bold text-slate-500">{doc.uploadedBy}</span> • Para: <span className="font-bold text-slate-500">{doc.destinatario}</span></p>
-                        <div className="mt-1.5">
+                        <div className="mt-1.5 text-left">
                           <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest ${WORKFLOW_STATES[doc.status]?.color || 'bg-slate-100 text-slate-600'}`}>{WORKFLOW_STATES[doc.status]?.label || doc.status}</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap gap-1.5 w-full md:w-auto shrink-0 mt-1 md:mt-0">
-                      <a href={doc.driveUrl} target="_blank" rel="noreferrer" className="px-2.5 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold uppercase tracking-wide text-slate-600 hover:bg-slate-50 flex-1 md:flex-none text-center">Ver</a>
+                    <div className="flex flex-wrap gap-1.5 w-full md:w-auto shrink-0 mt-1 md:mt-0 text-left">
+                      <a href={doc.driveUrl} target="_blank" rel="noreferrer" className={`px-2.5 py-1.5 border rounded text-[10px] font-bold uppercase tracking-wide flex-1 md:flex-none text-center flex items-center justify-center gap-1.5 transition-colors ${doc.folder === 'PUBLISHED' ? 'bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
+                        {doc.folder === 'PUBLISHED' ? <><Download size={12}/> Descargar Oficial</> : 'Ver'}
+                      </a>
                       
                       {doc.folder !== 'ARCHIVE' && (role === 'FISCAL_OBRA' || role === 'FISCAL_SEG') && (
                         <button onClick={() => requestAction(doc, 'ARCHIVE')} className="px-2.5 py-1.5 bg-orange-50 text-orange-600 border border-orange-100 rounded text-[10px] font-bold uppercase tracking-wide hover:bg-orange-100 flex-1 md:flex-none">Archivar</button>
                       )}
                       
                       {role === 'SUPERVISION' && (
-                        <select value="" onChange={(e) => { requestAction(doc, 'MANUAL_MOVE', { targetFolder: e.target.value }); e.target.value = ""; }} className="px-2 py-1.5 bg-slate-800 text-white border border-slate-700 rounded text-[10px] font-bold uppercase tracking-wide hover:bg-slate-700 cursor-pointer flex-1 md:flex-none outline-none">
+                        <select value={"" || ''} onChange={(e) => { requestAction(doc, 'MANUAL_MOVE', { targetFolder: e.target.value }); e.target.value = ""; }} className="px-2 py-1.5 bg-slate-800 text-white border border-slate-700 rounded text-[10px] font-bold uppercase tracking-wide hover:bg-slate-700 cursor-pointer flex-1 md:flex-none outline-none">
                           <option value="" disabled>Mover a...</option>
                           {doc.folder !== 'WIP' && <option value="WIP">WIP</option>}
                           {doc.folder !== 'SHARED' && <option value="SHARED">SHARED</option>}
@@ -475,8 +478,8 @@ function CDEView({ documents, role, logActionToDatabase }) {
                       
                       {role === 'SUPERVISION' && doc.folder === 'SHARED' && (
                         <>
-                          <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Obra' })} className="px-2.5 py-1.5 bg-blue-600 text-white rounded text-[10px] font-bold uppercase tracking-wide hover:bg-blue-700 flex-1 md:flex-none">A F.Obra</button>
-                          <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Seguimiento' })} className="px-2.5 py-1.5 bg-indigo-600 text-white rounded text-[10px] font-bold uppercase tracking-wide hover:bg-indigo-700 flex-1 md:flex-none">A F.Seg</button>
+                          <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Obra' })} className="px-2.5 py-1.5 bg-blue-600 text-white rounded text-[10px] font-bold uppercase tracking-wide hover:bg-blue-700 flex-1 md:flex-none">Enviar a Fiscal de Obra</button>
+                          <button onClick={() => requestAction(doc, 'REMITIR', { destinatario: 'Fiscal de Seguimiento' })} className="px-2.5 py-1.5 bg-indigo-600 text-white rounded text-[10px] font-bold uppercase tracking-wide hover:bg-indigo-700 flex-1 md:flex-none">Enviar a Fiscal de Seguimiento</button>
                         </>
                       )}
                       
@@ -523,8 +526,7 @@ function UploadView({ loadData, setCurrentView, activeUser, role, documentsLengt
   const generatedName = `HIO-${formData.originador}-${formData.disciplina}-${formData.tipo}-${formData.revision}-${autoNumero}-${formData.version}`;
 
   const handleCopyName = () => {
-    let ext = formData.extension === 'otro...' ? '' : formData.extension;
-    const textToCopy = `${generatedName}${ext}`;
+    const textToCopy = generatedName; // Copia sin extensión
     const textArea = document.createElement("textarea");
     textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select();
     document.execCommand("copy"); document.body.removeChild(textArea);
@@ -544,11 +546,12 @@ function UploadView({ loadData, setCurrentView, activeUser, role, documentsLengt
 
     setIsSubmitting(true); setFormError('');
 
-    let ext = formData.extension === 'otro...' ? (formData.file ? `.${formData.file.name.split('.').pop()}` : '') : formData.extension;
-    const finalName = `${generatedName}${ext}`;
+    // La extensión se mantiene en el payload original pero el nombre ISO enviado está limpio.
+    const finalName = generatedName;
 
     const basePayload = {
-      isoName: finalName, originalName: uploadMode === 'file' ? formData.file.name : 'Enlace Externo',
+      isoName: finalName, 
+      originalName: uploadMode === 'file' ? formData.file.name : 'Enlace Externo',
       carpetaDestino: formData.carpetaDestino, status: formData.carpetaDestino === 'WIP' ? 'WIP' : formData.carpetaDestino === 'PUBLISHED' ? 'APPROVED' : 'REVIEW_SUP',
       originador: formData.originador, disciplina: ISO_CODES.disciplina.find(d => d.code === formData.disciplina)?.name || formData.disciplina,
       tipo: ISO_CODES.tipo.find(t => t.code === formData.tipo)?.name || formData.tipo, revision: formData.revision, version: formData.version, 
@@ -573,43 +576,48 @@ function UploadView({ loadData, setCurrentView, activeUser, role, documentsLengt
   };
 
   return (
-    <div className="max-w-4xl mx-auto relative">
+    <div className="max-w-4xl mx-auto relative text-left">
       {showSuccess && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-xs text-center shadow-2xl"><CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-3" /><h3 className="text-sm font-black text-slate-800">Carga Exitosa</h3></div>
         </div>
       )}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="bg-blue-600 p-4 text-white"><h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2"><Settings size={16}/> Configuración ISO 19650</h3></div>
-        <form onSubmit={handleSubmit} className="p-4 md:p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden text-left">
+        <div className="bg-blue-600 p-4 text-white"><h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2"><Settings size={16}/> CONFIGURACIÓN DE CÓDIGO SEGÚN ISO 19650</h3></div>
+        <form onSubmit={handleSubmit} className="p-4 md:p-6 text-left">
           {formError && <div className="mb-4 p-3 bg-red-50 text-red-600 text-[11px] font-bold rounded-lg border border-red-200 flex items-center gap-1.5"><XCircle size={14} /> {formError}</div>}
           
-          <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg text-center relative">
-            <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1.5">Código Generado</p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
-              <p className="text-base md:text-lg font-mono font-bold text-blue-900 tracking-tight">{generatedName}<span className="text-blue-400">{formData.extension === 'otro...' ? '[ext]' : formData.extension}</span></p>
-              <button type="button" onClick={handleCopyName} className={`px-2.5 py-1.5 rounded text-[9px] uppercase tracking-wider font-bold transition-all flex items-center gap-1 border ${isCopied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`}>{isCopied ? <CheckCircle size={12} /> : <Copy size={12} />}{isCopied ? 'Copiado' : 'Copiar'}</button>
+          {/* CAJA DE CÓDIGO GENERADO CENTRADA Y GRANDE */}
+          <div className="mb-6 p-5 md:p-6 bg-slate-50 border border-slate-200 rounded-lg shadow-sm flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+            <div className="flex-1 flex items-center justify-center w-full">
+              <p className="text-xl md:text-2xl font-mono font-black text-blue-900 tracking-tight break-all text-center">{generatedName}</p>
             </div>
+            <button type="button" onClick={handleCopyName} className={`px-4 py-2.5 rounded-md text-[10px] uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-1.5 border shrink-0 mx-auto md:mx-0 ${isCopied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}`}>{isCopied ? <CheckCircle size={14} /> : <Copy size={14} />}{isCopied ? 'Copiado' : 'Copiar'}</button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+          {/* OPCIONES DE CONFIGURACIÓN CON EXTENSIÓN INCLUIDA */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5 text-left items-end">
              <SelectField label="Disciplina" value={formData.disciplina || ''} onChange={e => setFormData({...formData, disciplina: e.target.value})} options={ISO_CODES.disciplina.filter(d => !d.reqRole || d.reqRole === role)} />
              <SelectField label="Tipo Doc" value={formData.tipo || ''} onChange={e => setFormData({...formData, tipo: e.target.value})} options={ISO_CODES.tipo} />
              <SelectField label="Revisión" value={formData.revision || ''} onChange={e => setFormData({...formData, revision: e.target.value})} options={ISO_CODES.revision} />
-             <div className="space-y-1"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Versión</label><input type="text" value={formData.version || ''} onChange={e => setFormData({...formData, version: e.target.value.toUpperCase()})} maxLength="3" className="w-full border border-slate-200 p-2 rounded text-xs font-mono font-bold uppercase outline-none focus:border-blue-400" /></div>
+             <div className="space-y-1 text-left"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Versión</label><input type="text" value={formData.version || ''} onChange={e => setFormData({...formData, version: e.target.value.toUpperCase()})} maxLength="3" className="w-full border border-slate-200 p-2 rounded text-xs font-mono font-bold uppercase outline-none focus:border-blue-400" /></div>
+             <div className="space-y-1 text-left"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Extensión</label><select value={formData.extension || ''} onChange={e => setFormData({...formData, extension: e.target.value})} className="w-full border border-slate-200 p-2 rounded text-xs font-semibold text-slate-700 outline-none focus:border-blue-400 transition-colors">{ISO_CODES.extensiones.map(ext => <option key={ext} value={ext}>{ext}</option>)}</select></div>
           </div>
 
-          <div className="bg-slate-50/50 p-4 rounded-lg border border-slate-200 mb-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-slate-50/50 p-4 rounded-lg border border-slate-200 mb-6 text-left">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
               <SelectField label="Carpeta Destino" value={formData.carpetaDestino || ''} onChange={e => setFormData({...formData, carpetaDestino: e.target.value})} options={ISO_CODES.carpetas} />
-              <div className="space-y-1"><label className="text-[9px] font-black text-blue-600 uppercase tracking-wider">Entregar A</label><select value={formData.destinatario || ''} onChange={e => setFormData({...formData, destinatario: e.target.value})} className="w-full border border-blue-200 bg-blue-50/50 p-2 rounded text-xs font-bold text-blue-800 outline-none">{destinatarioOptions.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+              <div className="space-y-1 text-left"><label className="text-[9px] font-black text-blue-600 uppercase tracking-wider">Entregar A</label><select value={formData.destinatario || ''} onChange={e => setFormData({...formData, destinatario: e.target.value})} className="w-full border border-blue-200 bg-blue-50/50 p-2 rounded text-xs font-bold text-blue-800 outline-none">{destinatarioOptions.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
             </div>
-            <div className="mt-3 space-y-1"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Comentarios</label><textarea value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full border border-slate-200 p-2 rounded text-xs font-medium h-12 resize-none outline-none focus:border-blue-400" /></div>
+            <div className="mt-3 space-y-1 text-left"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Comentarios</label><textarea value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full border border-slate-200 p-2 rounded text-xs font-medium h-12 resize-none outline-none focus:border-blue-400" /></div>
           </div>
 
-          <div className="flex bg-slate-100 p-1 rounded-lg mb-3 w-max mx-auto border border-slate-200">
-            <button type="button" onClick={() => setUploadMode('file')} className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${uploadMode === 'file' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Físico (&lt;50MB)</button>
-            <button type="button" onClick={() => setUploadMode('link')} className={`px-4 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${uploadMode === 'link' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Link (&gt;50MB)</button>
+          {/* SELECTOR DE MODO CENTRADO */}
+          <div className="flex justify-center mb-4">
+            <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 w-full sm:w-max shadow-inner">
+              <button type="button" onClick={() => setUploadMode('file')} className={`flex-1 sm:flex-none px-6 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${uploadMode === 'file' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Físico (&lt;50MB)</button>
+              <button type="button" onClick={() => setUploadMode('link')} className={`flex-1 sm:flex-none px-6 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${uploadMode === 'link' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Link (&gt;50MB)</button>
+            </div>
           </div>
 
           {uploadMode === 'file' ? (
@@ -633,11 +641,11 @@ function UploadView({ loadData, setCurrentView, activeUser, role, documentsLengt
 
 function DatabaseView({ logs }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-      <div className="bg-slate-800 p-3 md:p-4 text-white flex items-center gap-2.5">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col text-left">
+      <div className="bg-slate-800 p-3 md:p-4 text-white flex items-center gap-2.5 text-left">
         <Database size={16} className="text-emerald-400" /><div><h3 className="font-bold text-sm uppercase tracking-wide">Base Maestra</h3></div>
       </div>
-      <div className="overflow-x-auto w-full">
+      <div className="overflow-x-auto w-full text-left">
         <table className="w-full text-[9px] md:text-[10px] text-left whitespace-nowrap">
           <thead className="bg-slate-50 border-b border-slate-200 uppercase font-black text-slate-500 tracking-wider">
             <tr><th className="px-3 py-2.5">Fecha</th><th className="px-3 py-2.5">Código ISO</th><th className="px-3 py-2.5">Autoría</th><th className="px-3 py-2.5">Destino</th><th className="px-3 py-2.5">Dir</th><th className="px-3 py-2.5">Estado</th></tr>
@@ -662,20 +670,20 @@ function DatabaseView({ logs }) {
 
 function LogsView({ logs }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6">
-      <div className="mb-5 border-b border-slate-100 pb-3">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6 text-left">
+      <div className="mb-5 border-b border-slate-100 pb-3 text-left">
         <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wide"><Clock className="text-blue-500" size={16} /> Audit Trail</h3>
       </div>
-      <div className="relative border-l border-slate-200 ml-2 space-y-4 pb-2">
+      <div className="relative border-l border-slate-200 ml-2 space-y-4 pb-2 text-left">
         {logs.map((log) => (
-          <div key={log.id} className="relative pl-5">
+          <div key={log.id} className="relative pl-5 text-left">
             <div className="absolute -left-[5px] top-1 w-2 h-2 bg-blue-400 rounded-full ring-2 ring-white"></div>
-            <div className="bg-slate-50/50 hover:bg-slate-50 transition-colors p-3 rounded-lg border border-slate-100">
+            <div className="bg-slate-50/50 hover:bg-slate-50 transition-colors p-3 rounded-lg border border-slate-100 text-left">
               <div className="flex flex-col md:flex-row justify-between md:items-center gap-1 mb-1.5">
                 <span className="font-bold text-slate-700 text-[11px] md:text-xs uppercase tracking-wide">{log.description || 'Actualización de Documento'}</span>
                 <span className="text-[9px] font-bold text-slate-400">{log.date}</span>
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-0.5 text-left">
                 <p className="text-[10px] text-slate-500">Doc: <span className="font-mono font-bold text-blue-700">{log.isoName}</span></p>
                 <p className="text-[10px] text-slate-500">Por: <span className="font-bold text-slate-700">{log.uploadedBy}</span></p>
               </div>
@@ -689,5 +697,5 @@ function LogsView({ logs }) {
 
 // --- UTILS ---
 function SidebarBtn({ active, icon, text, onClick }) { return <button onClick={onClick} className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-bold text-xs transition-all ${active ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>{React.cloneElement(icon, { size: 16 })}<span className="truncate tracking-wide">{text}</span></button>; }
-function StatCard({ title, value, icon, color }) { const colors = { blue: 'bg-blue-50/50 text-blue-700 border-blue-100', emerald: 'bg-emerald-50/50 text-emerald-700 border-emerald-100', red: 'bg-red-50/50 text-red-700 border-red-100', orange: 'bg-orange-50/50 text-orange-700 border-orange-100' }; return <div className={`p-3 md:p-4 rounded-lg border ${colors[color]} flex justify-between items-center h-full`}><div className="min-w-0"><p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest mb-0.5 text-slate-500 truncate">{title}</p><h3 className="text-xl md:text-2xl font-black">{value}</h3></div><div className="p-2 bg-white rounded-md shadow-sm shrink-0 opacity-80">{React.cloneElement(icon, { size: 18 })}</div></div>; }
-function SelectField({ label, value, onChange, options }) { return <div className="space-y-1 flex flex-col justify-center"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{label}</label><select value={value} onChange={onChange} className="w-full border border-slate-200 p-2 rounded text-xs font-semibold text-slate-700 truncate outline-none focus:border-blue-400 transition-colors">{options.map(opt => <option key={opt.code} value={opt.code}>{opt.code} - {opt.name}</option>)}</select></div>; }
+function StatCard({ title, value, icon, color }) { const colors = { blue: 'bg-blue-50/50 text-blue-700 border-blue-100', emerald: 'bg-emerald-50/50 text-emerald-700 border-emerald-100', red: 'bg-red-50/50 text-red-700 border-red-100', orange: 'bg-orange-50/50 text-orange-700 border-orange-100' }; return <div className={`p-3 md:p-4 rounded-lg border ${colors[color]} flex justify-between items-center h-full text-left`}><div className="min-w-0 text-left"><p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest mb-0.5 text-slate-500 truncate">{title}</p><h3 className="text-xl md:text-2xl font-black">{value}</h3></div><div className="p-2 bg-white rounded-md shadow-sm shrink-0 opacity-80">{React.cloneElement(icon, { size: 18 })}</div></div>; }
+function SelectField({ label, value, onChange, options }) { return <div className="space-y-1 flex flex-col justify-center text-left"><label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{label}</label><select value={value || ''} onChange={onChange} className="w-full border border-slate-200 p-2 rounded text-xs font-semibold text-slate-700 truncate outline-none focus:border-blue-400 transition-colors">{options.map(opt => <option key={opt.code} value={opt.code}>{opt.code} - {opt.name}</option>)}</select></div>; }
